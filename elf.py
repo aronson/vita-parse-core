@@ -69,7 +69,7 @@ class ElfParser():
                 line = '\033[90m' + line + '\033[0m'
             lines[x] = line
 
-        print("\n".join(lines))
+        print(("\n".join(lines)))
 
 
     def open_addr2line(self):
