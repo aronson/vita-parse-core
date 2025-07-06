@@ -1,44 +1,31 @@
-from elftools.common.py3compat import str2bytes
-
 import string
 import struct
 
 
 def u16(buf, off):
-    buf = buf[off:off+2]
-    try:
-        buf = str2bytes(buf)
-    except AttributeError:
-        pass
-    return struct.unpack("<H", buf)[0]
+    return struct.unpack("<H", buf[off:off+2])[0]
 
 
 def u32(buf, off):
-    buf = buf[off:off+4]
-    try:
-        buf = str2bytes(buf)
-    except AttributeError:
-        pass
-    return struct.unpack("<I", buf)[0]
+    return struct.unpack("<I", buf[off:off+4])[0]
 
 
 def c_str(buf, off):
-    out = ""
-    while off < len(buf) and buf[off] != '\0':
-        out += buf[off]
-        off += 1
-    return out
+    end = buf.find(b'\0', off)
+    if end == -1:
+        end = len(buf)
+    return buf[off:end].decode('utf-8', 'ignore')
 
 
 def hexdump(src, length=16, sep='.'):
-    DISPLAY = string.digits + string.letters + string.punctuation
-    FILTER = ''.join(((x if x in DISPLAY else '.') for x in map(chr, list(range(256)))))
+    DISPLAY = string.digits + string.ascii_letters + string.punctuation
+    FILTER = ''.join([(chr(x) if chr(x) in DISPLAY else '.') for x in range(256)])
     lines = []
     for c in range(0, len(src), length):
         chars = src[c:c+length]
-        hex = ' '.join(["%02x" % ord(x) for x in chars])
-        if len(hex) > 24:
-            hex = "%s %s" % (hex[:24], hex[24:])
-        printable = ''.join(["%s" % FILTER[ord(x)] for x in chars])
-        lines.append("%08x:  %-*s  |%s|\n" % (c, length*3, hex, printable))
-    print((''.join(lines)))
+        hex_str = ' '.join([f"{b:02x}" for b in chars])
+        if len(hex_str) > 24:
+            hex_str = f"{hex_str[:24]} {hex_str[24:]}"
+        printable = ''.join([FILTER[b] for b in chars])
+        lines.append(f"{c:08x}:  {hex_str:<{length*3}}  |{printable}|\n")
+    print(''.join(lines))

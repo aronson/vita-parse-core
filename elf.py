@@ -1,4 +1,3 @@
-from elftools.common.py3compat import str2bytes, bytes2str
 from elftools.elf.elffile import ELFFile
 
 from sys import argv
@@ -48,11 +47,11 @@ class ElfParser():
             args += ['-Mforce-thumb']
 
         output = subprocess.check_output(args)
-        lines = output.split(str2bytes("\n"))
+        lines = output.split(b"\n")
         keep = False
         new_lines = []
         for line in lines:
-            if str2bytes("Disassembly of section") in line:
+            if b"Disassembly of section" in line:
                 keep = True
                 continue
             if keep:
@@ -60,7 +59,7 @@ class ElfParser():
         lines = new_lines
 
         for x, line in enumerate(lines):
-            line = bytes2str(line)
+            line = line.decode('utf-8', 'ignore')
             if "{:x}:".format(addr) in line:
                 line = line[line.find("\t"):]
                 line = "!!! \t{} !!!".format(line)
@@ -81,7 +80,7 @@ class ElfParser():
     def addr2line(self, addr):
         """ Addr is offset in executable segment """
         addr += self.rx_vaddr
-        self.a2l.stdin.write(str2bytes(hex(addr) + "\n"))
+        self.a2l.stdin.write((hex(addr) + "\n").encode('utf-8'))
         self.a2l.stdin.flush()
         out = self.a2l.stdout.readline()
-        return out.strip()
+        return out.strip().decode('utf-8', 'ignore')

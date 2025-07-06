@@ -100,8 +100,8 @@ def main():
                 reg = reg_names.get(x, "R{}".format(x))
                 iprint("{}: 0x{:x}".format(reg, thread.regs.gpr[x]))
 
-            iprint(pc)
-            iprint(lr)
+            iprint(str(pc))
+            iprint(str(lr))
                 
                 
         iprint()
