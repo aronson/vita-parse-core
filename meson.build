@@ -8,3 +8,4 @@ run_command(py_executable_system, '-m', 'venv', venv_dir, check: true)
 run_command(venv_dir / 'bin' / 'pip', 'install', '-r', meson.current_source_dir() / 'requirements.txt', check: true)
 
 py_executable = find_program(venv_dir / 'bin' / 'python3')
+meson.override_variable('py_executable', py_executable)
